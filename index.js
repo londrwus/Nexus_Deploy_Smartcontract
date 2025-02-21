@@ -4,8 +4,6 @@ import solc from "solc";
 import chalk from "chalk";
 import ora from "ora";
 import cfonts from "cfonts";
-
-
 config(); // Load environment variables
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
@@ -63,19 +61,18 @@ function compileContract() {
 }
 
 async function deploy() {
-    async function main() {
-  cfonts.say("NT Exhaust", {
-    font: "block",
-    align: "center",
-    colors: ["cyan", "magenta"],
-    background: "black",
-    letterSpacing: 1,
-    lineHeight: 1,
-    space: true,
-    maxLength: "0",
-  });
-
-  styledLog("=== Telegram Channel : NT Exhaust (@NTExhaust) ===", "\x1b[36m");
+    cfonts.say("NT Exhaust", {
+        font: "block",
+        align: "center",
+        colors: ["cyan", "magenta"],
+        background: "black",
+        letterSpacing: 1,
+        lineHeight: 1,
+        space: true,
+        maxLength: "0",
+      });
+    
+       console.log(chalk.blue.bold("=== Telegram Channel : NT Exhaust (@NTExhaust) ===", "\x1b[36m"));
     console.log(chalk.blue.bold("\n🚀 Deploying HelloWorld contract...\n"));
 
     const { abi, bytecode } = compileContract();
