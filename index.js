@@ -4,6 +4,8 @@ import solc from "solc";
 import chalk from "chalk";
 import ora from "ora";
 import cfonts from "cfonts";
+import readlineSync from "readline-sync"; // For user input
+
 config(); // Load environment variables
 
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
@@ -38,7 +40,7 @@ contract Counter {
 
 function compileContract() {
     const spinner = ora("Compiling contract...").start();
-    
+
     try {
         const input = {
             language: "Solidity",
@@ -47,8 +49,6 @@ function compileContract() {
         };
 
         const output = JSON.parse(solc.compile(JSON.stringify(input)));
-
-        // Fix: Access the correct contract name
         const contract = output.contracts["Counter.sol"].Counter; 
 
         spinner.succeed(chalk.green("Contract compiled successfully!"));
@@ -70,31 +70,41 @@ async function deploy() {
         lineHeight: 1,
         space: true,
         maxLength: "0",
-      });
-    
-       console.log(chalk.blue.bold("=== Telegram Channel : NT Exhaust (@NTExhaust) ===", "\x1b[36m"));
-    console.log(chalk.blue.bold("\n🚀 Deploying HelloWorld contract...\n"));
+    });
 
-    const { abi, bytecode } = compileContract();
-    const spinner = ora("Deploying contract to blockchain...").start();
+    console.log(chalk.blue.bold("=== Telegram Channel : NT Exhaust (@NTExhaust) ===", "\x1b[36m"));
 
-    try {
-        const factory = new ethers.ContractFactory(abi, bytecode, wallet);
-        const contract = await factory.deploy();
+    // Ask user for number of deployments
+    const numDeployments = parseInt(readlineSync.question("Enter number of deployments: "), 10);
 
-        console.log("⏳ Waiting for transaction confirmation...");
-        const txReceipt = await contract.deploymentTransaction().wait();
-
-        spinner.succeed(chalk.green("Contract deployed successfully!"));
-        console.log(chalk.cyan.bold("\n📌 Contract Address: ") + chalk.yellow(contract.target));
-        console.log(chalk.cyan.bold("\n📜 Transaction Hash: ") + chalk.yellow(txReceipt.hash));
-        console.log(chalk.green("\n✅ Deployment complete! 🎉\n"));
-    } catch (error) {
-        spinner.fail(chalk.red("Deployment failed!"));
-        console.error(error);
+    if (isNaN(numDeployments) || numDeployments <= 0) {
+        console.log(chalk.red.bold("❌ Invalid number! Please enter a positive number."));
         process.exit(1);
     }
-}
 
+    console.log(chalk.blue.bold(`\n🚀 Deploying ${numDeployments} contracts...\n`));
+
+    const { abi, bytecode } = compileContract();
+
+    for (let i = 0; i < numDeployments; i++) {
+        const spinner = ora(`Deploying contract ${i + 1}/${numDeployments}...`).start();
+        try {
+            const factory = new ethers.ContractFactory(abi, bytecode, wallet);
+            const contract = await factory.deploy();
+
+            console.log("⏳ Waiting for transaction confirmation...");
+            const txReceipt = await contract.deploymentTransaction().wait();
+
+            spinner.succeed(chalk.green(`Contract ${i + 1} deployed successfully!`));
+            console.log(chalk.cyan.bold(`📌 Contract Address ${i + 1}: `) + chalk.yellow(contract.target));
+            console.log(chalk.cyan.bold(`📜 Transaction Hash ${i + 1}: `) + chalk.yellow(txReceipt.hash));
+        } catch (error) {
+            spinner.fail(chalk.red(`Deployment ${i + 1} failed!`));
+            console.error(error);
+        }
+    }
+
+    console.log(chalk.green("\n✅ All deployments complete! 🎉\n"));
+}
 
 deploy().catch(console.error);
