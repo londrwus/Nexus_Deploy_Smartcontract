@@ -12,7 +12,7 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY;
 const RPC_URL = process.env.RPC_URL;
 
 if (!PRIVATE_KEY || !RPC_URL) {
-    console.log(chalk.red.bold("❌ Missing environment variables!"));
+    console.log(chalk.red.bold("❌ Вы не добавили приватный ключ!"));
     process.exit(1);
 }
 
@@ -72,17 +72,15 @@ async function deploy() {
         maxLength: "0",
     });
 
-    console.log(chalk.blue.bold("=== Telegram Channel : NT Exhaust (@NTExhaust) ===", "\x1b[36m"));
-
     // Ask user for number of deployments
-    const numDeployments = parseInt(readlineSync.question("Enter number of deployments: "), 10);
+    const numDeployments = parseInt(readlineSync.question("Сколько раз задеплоить: "), 10);
 
     if (isNaN(numDeployments) || numDeployments <= 0) {
-        console.log(chalk.red.bold("❌ Invalid number! Please enter a positive number."));
+        console.log(chalk.red.bold("❌ Неправильная цифра! Введите пожалуйста положительное число."));
         process.exit(1);
     }
 
-    console.log(chalk.blue.bold(`\n🚀 Deploying ${numDeployments} contracts...\n`));
+    console.log(chalk.blue.bold(`\n🚀 Деплоим ${numDeployments} контракты...\n`));
 
     const { abi, bytecode } = compileContract();
 
@@ -92,7 +90,7 @@ async function deploy() {
             const factory = new ethers.ContractFactory(abi, bytecode, wallet);
             const contract = await factory.deploy();
 
-            console.log("⏳ Waiting for transaction confirmation...");
+            console.log("⏳ Ждем подтверждение транзакции...");
             const txReceipt = await contract.deploymentTransaction().wait();
 
             spinner.succeed(chalk.green(`Contract ${i + 1} deployed successfully!`));
@@ -104,7 +102,7 @@ async function deploy() {
         }
     }
 
-    console.log(chalk.green("\n✅ All deployments complete! 🎉\n"));
+    console.log(chalk.green("\n✅ Все контракты были задеплоены! 🎉\n"));
 }
 
 deploy().catch(console.error);
