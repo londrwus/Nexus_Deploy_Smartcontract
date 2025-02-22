@@ -61,17 +61,6 @@ function compileContract() {
 }
 
 async function deploy() {
-    cfonts.say("NT Exhaust", {
-        font: "block",
-        align: "center",
-        colors: ["cyan", "magenta"],
-        background: "black",
-        letterSpacing: 1,
-        lineHeight: 1,
-        space: true,
-        maxLength: "0",
-    });
-
     // Ask user for number of deployments
     const numDeployments = parseInt(readlineSync.question("Сколько раз задеплоить: "), 10);
 
